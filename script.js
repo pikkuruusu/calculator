@@ -11,3 +11,18 @@ const divide = (a, b) => {
         return a / b;
     }
 }
+
+const operate = (operator, a, b) => {
+    switch (operator) {
+        case '+':
+            return add(a, b);
+        case '-':
+            return substract(a, b);
+        case '*':
+            return multiply(a, b);
+        case '/':
+            return divide(a, b);
+        default:
+            throw 'Invalid operator';
+    }
+}
