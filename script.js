@@ -1,3 +1,10 @@
+// Variables
+let screenDisplay = [];
+
+// QuerySelectors
+const screen = document.querySelector('#screen');
+const buttons = document.querySelectorAll('.digit');
+
 const add = (a, b) => a + b;
 
 const substract = (a, b) => a - b;
@@ -26,3 +33,22 @@ const operate = (operator, a, b) => {
             throw 'Invalid operator';
     }
 }
+
+const digitToScreen = function() {
+    // This calculator doesn't like big numbers
+    if (screenDisplay.length > 11) return;
+
+    // Check for multiple zeroes and decimals
+    if (screenDisplay[0] === '0' && this.textContent === '0') return;
+    if (screenDisplay.includes(',') && this.textContent === ',') return;
+
+    // If we already have zero, start with an empty array
+    if (screenDisplay[0] === '0') screenDisplay = [];
+
+    screenDisplay.push(this.textContent);
+    screen.textContent = screenDisplay.join('');
+}
+
+
+buttons.forEach(button => button.addEventListener('click', digitToScreen));
+

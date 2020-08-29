@@ -63,6 +63,7 @@ body {
     font-family: 'Do Hyeon', sans-serif;
     font-size: 1.6em;
     color: #444;
+    cursor: pointer;
     transition: all 0.15s ease;
 }
 
