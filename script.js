@@ -3,7 +3,7 @@ let screenDisplay = [];
 
 // QuerySelectors
 const screen = document.querySelector('#screen');
-const buttons = document.querySelectorAll('.digit');
+const buttons = document.querySelectorAll('.button');
 
 const add = (a, b) => a + b;
 
@@ -34,21 +34,35 @@ const operate = (operator, a, b) => {
     }
 }
 
-const digitToScreen = function() {
+const handleUserInput = (e) => {
+    let userInput = e.target.textContent;
+    if (userInput === 'AC') {
+        clear();
+    } else {
+        digitToScreen(userInput);
+    }
+    
+}
+
+const digitToScreen = (digit) => {
     // This calculator doesn't like big numbers
     if (screenDisplay.length > 11) return;
 
     // Check for multiple zeroes and decimals
-    if (screenDisplay[0] === '0' && this.textContent === '0') return;
-    if (screenDisplay.includes(',') && this.textContent === ',') return;
+    if (screenDisplay[0] === '0' && digit === '0') return;
+    if (screenDisplay.includes(',') && digit === ',') return;
 
     // If we already have zero, start with an empty array
-    if (screenDisplay[0] === '0') screenDisplay = [];
+    if (screenDisplay[0] === '0' && digit != ',') screenDisplay = []; //TODO HANDLE IF FIRST INPUT IS DECIMAL AND IF DECIMAL WHERE FIRST DIGIT IS ZERO
 
-    screenDisplay.push(this.textContent);
+    screenDisplay.push(digit);
     screen.textContent = screenDisplay.join('');
 }
 
+const clear = () => {
+    screen.textContent = '0';
+    screenDisplay = [];
+}
 
-buttons.forEach(button => button.addEventListener('click', digitToScreen));
+buttons.forEach(button => button.addEventListener('click', handleUserInput));
 
