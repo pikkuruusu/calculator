@@ -1,5 +1,5 @@
 // Variables
-let screenDisplay = [];
+let screenDisplay = ['0'];
 
 // QuerySelectors
 const screen = document.querySelector('#screen');
@@ -45,23 +45,24 @@ const handleUserInput = (e) => {
 }
 
 const digitToScreen = (digit) => {
-    // This calculator doesn't like big numbers
+    // This calculator doesn't want bigger numbers
     if (screenDisplay.length > 11) return;
 
     // Check for multiple zeroes and decimals
     if (screenDisplay[0] === '0' && digit === '0') return;
     if (screenDisplay.includes(',') && digit === ',') return;
 
-    // If we already have zero, start with an empty array
-    if (screenDisplay[0] === '0' && digit != ',') screenDisplay = []; //TODO HANDLE IF FIRST INPUT IS DECIMAL AND IF DECIMAL WHERE FIRST DIGIT IS ZERO
+    // If we already have zero and are not constructing a decimal number, start with an empty array
+    if (screenDisplay[0] === '0' && !screenDisplay.includes(',') && digit != ',') screenDisplay = [];
 
+    // Add digit to array and put new number on display
     screenDisplay.push(digit);
     screen.textContent = screenDisplay.join('');
 }
 
 const clear = () => {
     screen.textContent = '0';
-    screenDisplay = [];
+    screenDisplay = ['0'];
 }
 
 buttons.forEach(button => button.addEventListener('click', handleUserInput));
