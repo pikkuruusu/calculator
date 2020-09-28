@@ -1,5 +1,14 @@
 // Variables
 let screenDisplay = ['0'];
+let firstNumber;
+let secondNumber;
+
+let operator = {
+    activeOperator: false,
+    waitingForSecondNumber: false,
+    currentOperator: '',
+};
+
 
 // QuerySelectors
 const screen = document.querySelector('#screen');
@@ -36,15 +45,31 @@ const operate = (operator, a, b) => {
 
 const handleUserInput = (e) => {
     let userInput = e.target.textContent;
+    // THIS NEEDS REFACTORING
     if (userInput === 'AC') {
         clear();
-    } else {
+    } else if (e.target.classList.contains('digit')) {
         digitToScreen(userInput);
+    } else if (e.target.classList.contains('operator')) {
+        operatorInput(userInput);
     }
     
 }
 
+const operatorInput = (operatorInput) => {
+    operator.currentOperator = operatorInput;
+    operator.waitingForSecondNumber = true;
+    // Take the screen number, handle the nordic decimal and turn it into a real number
+    firstNumber = parseFloat(screenDisplay.join('').replace(',', '.'));
+    console.log(firstNumber);
+    //TODO we need to maybe store that we have the first number, maybe?
+    // How to handle equals
+}
+
 const digitToScreen = (digit) => {
+    // TODO We need to handle if we are waiting for second number
+
+
     // This calculator doesn't want bigger numbers
     if (screenDisplay.length > 11) return;
 
