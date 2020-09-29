@@ -25,7 +25,7 @@ const multiply = (a, b) => a * b;
 
 const divide = (a, b) => {
     if(b === 0) {
-        throw 'Division by zero'
+        throw 'Division by zero' //TODO We need to catch this somehow
     } else {
         return a / b;
     }
@@ -46,6 +46,29 @@ const operate = (operator, a, b) => {
     }
 }
 
+const equals = () => {
+    //TODO this would be nice to refactor
+    if (!firstNumber && !operator) {
+        firstNumber = screenDisplayToFloat();
+    }
+
+    if ((firstNumber && !operator) || (firstNumber === 0 && !operator)) return;
+
+    if (firstNumber && operator && !secondNumber) {
+        //TODO We need to handle if we don't add a second number, screen display is set to zero after operator
+        secondNumber = screenDisplayToFloat();
+        console.log(`This is ${screenDisplay}`);
+        const result = operate(operator, firstNumber, secondNumber);
+        screen.textContent = `${result}`;
+        firstNumber = result;
+    } else {
+        const result = operate(operator, firstNumber, secondNumber);
+        screen.textContent = `${result}`;
+        firstNumber = result;
+    }
+    //TODO we need to have some animations when stuff happens
+}
+
 const handleUserInput = (e) => {
     let userInput = e.target.textContent;
     // THIS NEEDS REFACTORING
@@ -55,14 +78,15 @@ const handleUserInput = (e) => {
         digitToScreen(userInput);
     } else if (e.target.classList.contains('operator')) {
         operatorInput(userInput);
-    } 
-    
+    } else if (e.target.id === 'equals') {
+        equals();
+    }
 }
 
 const operatorInput = (operatorInput) => {
     if (firstNumber) {
         secondNumber = screenDisplayToFloat();
-        const result = operate(operator, firstNumber, secondNumber); //TODO WE HAVE A PROBLEM IF OPERATOR IS CHANGED
+        const result = operate(operator, firstNumber, secondNumber); 
         firstNumber = result;
         secondNumber = null;
         operator = textToValidOperator[operatorInput];
@@ -74,8 +98,6 @@ const operatorInput = (operatorInput) => {
         // Take the screen number, handle the nordic decimal and turn it into a real number
         firstNumber = screenDisplayToFloat();
         screenDisplay = ['0'];
-        //TODO we need to maybe store that we have the first number, maybe?
-        // How to handle equals
     }
 
 }
