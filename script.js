@@ -5,10 +5,18 @@ let secondNumber = null;
 
 let operator = null;
 
+const textToValidOperator = {
+    '+': '+',
+    '–': '-',
+    'x': '*',
+    '÷': '/',
+}
+
 // QuerySelectors
 const screen = document.querySelector('#screen');
 const buttons = document.querySelectorAll('.button');
 
+//TODO We have a rounding problem, sometimes it rounds when it isn't supposed to
 const add = (a, b) => a + b;
 
 const substract = (a, b) => a - b;
@@ -57,11 +65,12 @@ const operatorInput = (operatorInput) => {
         const result = operate(operator, firstNumber, secondNumber); //TODO WE HAVE A PROBLEM IF OPERATOR IS CHANGED
         firstNumber = result;
         secondNumber = null;
+        operator = textToValidOperator[operatorInput];
         screen.textContent = `${result}`;
         screenDisplay = ['0'];
         console.log(result);
     } else {
-        operator = operatorInput;
+        operator = textToValidOperator[operatorInput];
         // Take the screen number, handle the nordic decimal and turn it into a real number
         firstNumber = screenDisplayToFloat();
         screenDisplay = ['0'];
@@ -92,7 +101,9 @@ const screenDisplayToFloat = () => parseFloat(screenDisplay.join('').replace(','
 const clear = () => {
     screen.textContent = '0';
     screenDisplay = ['0'];
+    firstNumber = null;
+    secondNumber = null;
+    operator = null;
 }
 
 buttons.forEach(button => button.addEventListener('click', handleUserInput));
-
