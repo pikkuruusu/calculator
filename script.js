@@ -47,6 +47,8 @@ const operate = (operator, a, b) => {
 }
 
 const equals = () => {
+    // TODO Prpbably move this blink
+    screenBlink();
     //TODO this would be nice to refactor
     if (!firstNumber && !operator) {
         firstNumber = screenDisplayToFloat();
@@ -84,6 +86,7 @@ const handleUserInput = (e) => {
 }
 
 const operatorInput = (operatorInput) => {
+    screenBlink();
     if (firstNumber) {
         secondNumber = screenDisplayToFloat();
         const result = operate(operator, firstNumber, secondNumber); 
@@ -121,11 +124,19 @@ const digitToScreen = (digit) => {
 const screenDisplayToFloat = () => parseFloat(screenDisplay.join('').replace(',', '.'));
 
 const clear = () => {
+    screenBlink();
     screen.textContent = '0';
     screenDisplay = ['0'];
     firstNumber = null;
     secondNumber = null;
     operator = null;
+}
+
+const screenBlink = () => {
+    screen.addEventListener('transitionend', () => {
+        screen.classList.remove('blink');
+    })
+    screen.classList.add('blink');
 }
 
 buttons.forEach(button => button.addEventListener('click', handleUserInput));
