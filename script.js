@@ -46,31 +46,6 @@ const operate = (operator, a, b) => {
     }
 }
 
-const equals = () => {
-    // TODO Prpbably move this blink
-    screenBlink();
-    //TODO this would be nice to refactor
-    if (!firstNumber && !operator) {
-        firstNumber = screenDisplayToFloat();
-    }
-
-    if ((firstNumber && !operator) || (firstNumber === 0 && !operator)) return;
-
-    if (firstNumber && operator && !secondNumber) {
-        //TODO We need to handle if we don't add a second number, screen display is set to zero after operator
-        secondNumber = screenDisplayToFloat();
-        console.log(`This is ${screenDisplay}`);
-        const result = operate(operator, firstNumber, secondNumber);
-        screen.textContent = `${result}`;
-        firstNumber = result;
-    } else {
-        const result = operate(operator, firstNumber, secondNumber);
-        screen.textContent = `${result}`;
-        firstNumber = result;
-    }
-    //TODO we need to have some animations when stuff happens
-}
-
 const handleUserInput = (e) => {
     let userInput = e.target.textContent;
     // THIS NEEDS REFACTORING
@@ -85,21 +60,60 @@ const handleUserInput = (e) => {
     }
 }
 
+const equals = () => {
+    screenBlink();
+    //TODO this would be nice to refactor
+    //firstNumber zero is still not working
+    if ((firstNumber || firstNumber === 0) && !operator) return;
+
+    if ((firstNumber || firstNumber === 0) && operator && !secondNumber) {
+        //TODO what is this: We need to handle if we don't add a second number, screen display is set to zero after operator
+        secondNumber = screenDisplayToFloat();
+        let result = operate(operator, firstNumber, secondNumber);
+        if (result > 999999999999) {
+            result = result.toExponential(4);
+        }
+        screen.textContent = `${result}`;
+        firstNumber = result;
+    } else {
+        const result = operate(operator, firstNumber, secondNumber);
+        if (result > 999999999999) {
+            result = result.toExponential(4);
+        }
+        screen.textContent = `${result}`;
+        firstNumber = result;
+    }
+}
+
 const operatorInput = (operatorInput) => {
     screenBlink();
-    if (firstNumber) {
+
+    //We want to be able to do opertions after equal, that is why we need to do this:
+    if (firstNumber && secondNumber) {
+        secondNumber = null;
+        screenDisplay = ['0'];
+        operator = textToValidOperator[operatorInput];
+        return;
+    }
+
+    // We have a firstNumber stored and we want to take the number from screen and operate
+    if (firstNumber || firstNumber === 0) {
         secondNumber = screenDisplayToFloat();
         const result = operate(operator, firstNumber, secondNumber); 
         firstNumber = result;
         secondNumber = null;
+        // We set the operator again, it might have changed
         operator = textToValidOperator[operatorInput];
         screen.textContent = `${result}`;
+        // Do this to allow input if we want to
         screenDisplay = ['0'];
         console.log(result);
     } else {
+        // If we dont have a firstNumber stored we do this
         operator = textToValidOperator[operatorInput];
         // Take the screen number, handle the nordic decimal and turn it into a real number
         firstNumber = screenDisplayToFloat();
+        // To be able to input new numbers we set screendsipaly to zero
         screenDisplay = ['0'];
     }
 
@@ -133,10 +147,8 @@ const clear = () => {
 }
 
 const screenBlink = () => {
-    screen.addEventListener('transitionend', () => {
-        screen.classList.remove('blink');
-    })
     screen.classList.add('blink');
+    setTimeout(() => screen.classList.remove('blink'), 80)
 }
 
 buttons.forEach(button => button.addEventListener('click', handleUserInput));
