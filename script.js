@@ -123,6 +123,8 @@ const digitToScreen = (digit) => {
     // This calculator doesn't want bigger numbers
     if (screenDisplay.length > 11) return;
 
+    //TODO we need to handle too long decimals somehow, maybe somehow with exponentials.
+
     // Check for multiple zeroes and decimals, if we are waiting for a second number we need to add a zero to screen
     if (screenDisplay[0] === '0' && digit === '0' && !firstNumber) return;
     if (screenDisplay.includes(',') && digit === ',') return;
@@ -145,6 +147,8 @@ const clear = () => {
     secondNumber = null;
     operator = null;
 }
+
+//TODO add a backspace functionality, to erase wrong numbers
 
 const screenBlink = () => {
     screen.classList.add('blink');
