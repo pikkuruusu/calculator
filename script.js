@@ -25,7 +25,7 @@ const multiply = (a, b) => a * b;
 
 const divide = (a, b) => {
     if(b === 0) {
-        throw 'Division by zero' //TODO We need to catch this somehow
+        throw 'Div. by zero' //TODO We need to catch this somehow
     } else {
         return a / b;
     }
@@ -40,7 +40,12 @@ const operate = (operator, a, b) => {
         case '*':
             return multiply(a, b);
         case '/':
-            return divide(a, b);
+            try {
+                return divide(a, b);
+            } catch (error) {
+                return error;
+            };
+            
         default:
             throw 'Invalid operator';
     }
@@ -57,32 +62,37 @@ const handleUserInput = (e) => {
         operatorInput(userInput);
     } else if (e.target.id === 'equals') {
         equals();
+    } else if (e.target.id === 'posneg') {
+        changePosNeg();
     }
 }
 
 const equals = () => {
     screenBlink();
-    //TODO this would be nice to refactor
-    //firstNumber zero is still not working
-    if ((firstNumber || firstNumber === 0) && !operator) return;
-
-    if ((firstNumber || firstNumber === 0) && operator && !secondNumber) {
-        //TODO what is this: We need to handle if we don't add a second number, screen display is set to zero after operator
-        secondNumber = screenDisplayToFloat();
+    if ((firstNumber || firstNumber === 0) && operator) {
+        // If we don't have second number stored, take it from screenDisplay
+        if (!secondNumber) {
+            secondNumber = screenDisplayToFloat();
+        }
+        
         let result = operate(operator, firstNumber, secondNumber);
-        if (result > 999999999999) {
-            result = result.toExponential(4);
-        }
-        screen.textContent = `${result}`;
-        firstNumber = result;
-    } else {
-        const result = operate(operator, firstNumber, secondNumber);
-        if (result > 999999999999) {
-            result = result.toExponential(4);
-        }
-        screen.textContent = `${result}`;
-        firstNumber = result;
-    }
+
+        // Need to handle if number isn't returned, case div by zero
+        if (Number.isNaN(result)) {
+            screen.textContent = `${result}`;
+            screenDisplay = ['0'];
+            firstNumber = null;
+            secondNumber = null;
+            operator = null;
+        } else {
+            // Need to handle long numbers
+            if ((result + '').replace('.', '').length >= 12) {
+                result = result.toExponential(4);
+            }
+            firstNumber = result;
+            screen.textContent = `${result}`;
+        }               
+    } 
 }
 
 const operatorInput = (operatorInput) => {
@@ -146,6 +156,24 @@ const clear = () => {
     firstNumber = null;
     secondNumber = null;
     operator = null;
+}
+
+const changePosNeg = () => {
+    screenDisplay = screen.textContent.split('');
+
+    if (screenDisplay[0] === '0' && screenDisplay.length === 1) return;
+
+    if (screenDisplay[0] === '-') {
+        screenDisplay.shift();
+    } else {
+        screenDisplay.unshift('-');
+    }
+    screen.textContent = screenDisplay.join('');
+
+    // We want to be able to also change results and operate on them, this allows it
+    if (secondNumber) {
+        firstNumber = screenDisplayToFloat();
+    }  
 }
 
 //TODO add a backspace functionality, to erase wrong numbers
