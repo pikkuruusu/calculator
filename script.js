@@ -16,16 +16,13 @@ const textToValidOperator = {
 const screen = document.querySelector('#screen');
 const buttons = document.querySelectorAll('.button');
 
-//TODO We have a rounding problem, sometimes it rounds when it isn't supposed to
+// Operations
 const add = (a, b) => a + b;
-
 const substract = (a, b) => a - b;
-
 const multiply = (a, b) => a * b;
-
 const divide = (a, b) => {
     if(b === 0) {
-        throw 'Div. by zero' //TODO We need to catch this somehow
+        throw 'Div. by zero'
     } else {
         return a / b;
     }
@@ -44,8 +41,7 @@ const operate = (operator, a, b) => {
                 return divide(a, b);
             } catch (error) {
                 return error;
-            };
-            
+            };        
         default:
             throw 'Invalid operator';
     }
@@ -53,7 +49,7 @@ const operate = (operator, a, b) => {
 
 const handleUserInput = (e) => {
     let userInput = e.target.textContent;
-    // THIS NEEDS REFACTORING
+
     if (userInput === 'AC') {
         clear();
     } else if (e.target.classList.contains('digit')) {
@@ -64,6 +60,8 @@ const handleUserInput = (e) => {
         equals();
     } else if (e.target.id === 'posneg') {
         changePosNeg();
+    } else if (e.target.id === 'delete') {
+        deleteDigit();
     }
 }
 
@@ -87,7 +85,7 @@ const equals = () => {
         } else {
             // Need to handle long numbers
             if ((result + '').replace('.', '').length >= 12) {
-                result = result.toExponential(4);
+                result = result.toExponential(6);
             }
             firstNumber = result;
             screen.textContent = `${result}`;
@@ -133,8 +131,6 @@ const digitToScreen = (digit) => {
     // This calculator doesn't want bigger numbers
     if (screenDisplay.length > 11) return;
 
-    //TODO we need to handle too long decimals somehow, maybe somehow with exponentials.
-
     // Check for multiple zeroes and decimals, if we are waiting for a second number we need to add a zero to screen
     if (screenDisplay[0] === '0' && digit === '0' && !firstNumber) return;
     if (screenDisplay.includes(',') && digit === ',') return;
@@ -176,7 +172,20 @@ const changePosNeg = () => {
     }  
 }
 
-//TODO add a backspace functionality, to erase wrong numbers
+const deleteDigit = () => {
+    if (firstNumber && screenDisplay[0] === '0' && screenDisplay.length === 1) return;
+
+    if (screenDisplay.length === 1) {
+        screenDisplay[0] = '0';
+        screen.textContent = screenDisplay.join('');
+        return;
+    }
+
+    if (!firstNumber || !secondNumber) {
+        screenDisplay.pop();
+        screen.textContent = screenDisplay.join('');
+    }
+}
 
 const screenBlink = () => {
     screen.classList.add('blink');
