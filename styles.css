@@ -6,7 +6,7 @@
 
 body {
     margin: 0;
-    background-color: #F8EDEB;
+    background-color: #F7F7F7;
 }
 
 #wrapper {
@@ -20,6 +20,7 @@ body {
 }
 
 #main {
+    background-color: #F8EDEB;
     display: grid;
     grid-template-columns: repeat(4, 1fr);
     column-gap: 9px;
