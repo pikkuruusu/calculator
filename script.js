@@ -60,7 +60,8 @@ const handleUserInput = (e) => {
         equals();
     } else if (e.target.id === 'posneg') {
         changePosNeg();
-    } else if (e.target.id === 'delete') {
+    } else if (e.target.id === 'delete' || e.target.parentElement.parentElement.id === 'delete') {
+        console.log('Delete pressed!');
         deleteDigit();
     }
 }
@@ -152,7 +153,7 @@ const clear = () => {
     firstNumber = null;
     secondNumber = null;
     operator = null;
-}
+};
 
 const changePosNeg = () => {
     screenDisplay = screen.textContent.split('');
@@ -170,7 +171,7 @@ const changePosNeg = () => {
     if (secondNumber) {
         firstNumber = screenDisplayToFloat();
     }  
-}
+};
 
 const deleteDigit = () => {
     if (firstNumber && screenDisplay[0] === '0' && screenDisplay.length === 1) return;
@@ -179,17 +180,20 @@ const deleteDigit = () => {
         screenDisplay[0] = '0';
         screen.textContent = screenDisplay.join('');
         return;
-    }
+    };
 
     if (!firstNumber || !secondNumber) {
         screenDisplay.pop();
         screen.textContent = screenDisplay.join('');
-    }
-}
+    };
+};
 
 const screenBlink = () => {
     screen.classList.add('blink');
-    setTimeout(() => screen.classList.remove('blink'), 80)
-}
+    setTimeout(() => screen.classList.remove('blink'), 80);
+};
 
 buttons.forEach(button => button.addEventListener('click', handleUserInput));
+window.addEventListener('keydown', (e) => {
+    console.log(e.code);
+});
