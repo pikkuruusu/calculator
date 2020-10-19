@@ -2,15 +2,8 @@
 let screenDisplay = ['0'];
 let firstNumber = null;
 let secondNumber = null;
-
 let operator = null;
-
-const textToValidOperator = {
-    '+': '+',
-    '–': '-',
-    'x': '*',
-    '÷': '/',
-}
+let acceptDigit = true;
 
 // QuerySelectors
 const screen = document.querySelector('#screen');
@@ -18,7 +11,7 @@ const buttons = document.querySelectorAll('.button');
 
 // Operations
 const add = (a, b) => a + b;
-const substract = (a, b) => a - b;
+const substract = (a, b) => Number((a - b).toFixed(16));
 const multiply = (a, b) => a * b;
 const divide = (a, b) => {
     if(b === 0) {
@@ -47,27 +40,24 @@ const operate = (operator, a, b) => {
     }
 }
 
-const handleUserInput = (e) => {
-    let userInput = e.target.textContent;
+const handleUserInput = (input) => {
+    //TODO refactor for new input objects
 
-    if (userInput === 'AC') {
-        clear();
-    } else if (e.target.classList.contains('digit')) {
-        digitToScreen(userInput);
-    } else if (e.target.classList.contains('operator')) {
-        operatorInput(userInput);
-    } else if (e.target.id === 'equals') {
-        equals();
-    } else if (e.target.id === 'posneg') {
-        changePosNeg();
-    } else if (e.target.id === 'delete' || e.target.parentElement.parentElement.id === 'delete') {
-        console.log('Delete pressed!');
-        deleteDigit();
+    if (input.class === 'function') {
+        if (input.key === 'AC') clear();
+        if (input.key === 'Backspace') deleteDigit();
+        if (input.key === 'posneg') changePosNeg();
+        if (input.key === 'Enter') equals();
+    } else if (input.class === 'digit'){
+        digitToScreen(input.key);
+    } else if (input.class === 'operator') {
+        operatorInput(input.key);
     }
 }
 
 const equals = () => {
     screenBlink();
+    if (!firstNumber && !secondNumber) return;
     if ((firstNumber || firstNumber === 0) && operator) {
         // If we don't have second number stored, take it from screenDisplay
         if (!secondNumber) {
@@ -90,18 +80,20 @@ const equals = () => {
             }
             firstNumber = result;
             screen.textContent = `${result}`;
+            acceptDigit = false;
         }               
     } 
 }
 
 const operatorInput = (operatorInput) => {
     screenBlink();
-
+    //This shit needs refactoring
+    acceptDigit = true;
     //We want to be able to do opertions after equal, that is why we need to do this:
     if (firstNumber && secondNumber) {
         secondNumber = null;
         screenDisplay = ['0'];
-        operator = textToValidOperator[operatorInput];
+        operator = operatorInput;
         return;
     }
 
@@ -112,14 +104,14 @@ const operatorInput = (operatorInput) => {
         firstNumber = result;
         secondNumber = null;
         // We set the operator again, it might have changed
-        operator = textToValidOperator[operatorInput];
+        operator = operatorInput;
         screen.textContent = `${result}`;
         // Do this to allow input if we want to
         screenDisplay = ['0'];
         console.log(result);
     } else {
         // If we dont have a firstNumber stored we do this
-        operator = textToValidOperator[operatorInput];
+        operator = operatorInput;
         // Take the screen number, handle the nordic decimal and turn it into a real number
         firstNumber = screenDisplayToFloat();
         // To be able to input new numbers we set screendsipaly to zero
@@ -131,6 +123,10 @@ const operatorInput = (operatorInput) => {
 const digitToScreen = (digit) => {
     // This calculator doesn't want bigger numbers
     if (screenDisplay.length > 11) return;
+    if (!acceptDigit) {
+        screenBlink();
+        return;
+    }
 
     // Check for multiple zeroes and decimals, if we are waiting for a second number we need to add a zero to screen
     if (screenDisplay[0] === '0' && digit === '0' && !firstNumber) return;
@@ -153,6 +149,7 @@ const clear = () => {
     firstNumber = null;
     secondNumber = null;
     operator = null;
+    acceptDigit = true;
 };
 
 const changePosNeg = () => {
@@ -174,6 +171,11 @@ const changePosNeg = () => {
 };
 
 const deleteDigit = () => {
+    if (!acceptDigit) {
+        clear();
+        return;
+    }
+
     if (firstNumber && screenDisplay[0] === '0' && screenDisplay.length === 1) return;
 
     if (screenDisplay.length === 1) {
@@ -193,7 +195,47 @@ const screenBlink = () => {
     setTimeout(() => screen.classList.remove('blink'), 80);
 };
 
-buttons.forEach(button => button.addEventListener('click', handleUserInput));
+const createInputObject = function(element) {
+    let input = {
+        class: '',
+        key: element.getAttribute("data-key"),
+    };
+
+    const classes = element.getAttribute("class");
+
+    classes.includes('digit') ? input.class = 'digit' 
+    : classes.includes('operator') ? input.class = 'operator'
+    : classes.includes('function') ? input.class = 'function'
+    : input.class = null;
+
+    return input;
+}
+
+const handleKeyboardButton = function(e) {
+    let key = e.key;
+    if (key === '.') key = ',';
+    const button = document.querySelector(`.button[data-key="${key}"]`)
+    return button;
+}
+
+buttons.forEach(button => button.addEventListener('click', function() {
+    const input = createInputObject(this);
+    handleUserInput(input);
+    }));
+
+
 window.addEventListener('keydown', (e) => {
-    console.log(e.code);
+    let button = handleKeyboardButton(e);
+    if (!button) return;
+    button.classList.add("active");
+
+    const input = createInputObject(button);
+    handleUserInput(input);
+});
+
+window.addEventListener('keyup', (e) => {
+    let button = handleKeyboardButton(e);
+    if (!button) return;
+
+    button.classList.remove("active");
 });

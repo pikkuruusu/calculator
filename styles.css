@@ -84,6 +84,13 @@ body {
     color: #111;
 }
 
+/* Needed for keyboard events */
+.button.active {
+    transform: translate(1px, 1px);
+    box-shadow: 0.5px 0.5px 3px 3px rgba(20, 190, 255, 0.4);
+    color: #111;
+}
+
 #zero {
     grid-column-end: span 2;
     border-radius: 34.5px 34.5px 34.5px 34.5px;
