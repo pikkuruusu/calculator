@@ -40,9 +40,8 @@ const operate = (operator, a, b) => {
     }
 }
 
+//Functionality
 const handleUserInput = (input) => {
-    //TODO refactor for new input objects
-
     if (input.class === 'function') {
         if (input.key === 'AC') clear();
         if (input.key === 'Backspace') deleteDigit();
@@ -54,6 +53,54 @@ const handleUserInput = (input) => {
         operatorInput(input.key);
     }
 }
+
+const clear = () => {
+    screenBlink();
+    screen.textContent = '0';
+    screenDisplay = ['0'];
+    firstNumber = null;
+    secondNumber = null;
+    operator = null;
+    acceptDigit = true;
+};
+
+const deleteDigit = () => {
+    if (!acceptDigit) {
+        clear();
+        return;
+    }
+
+    if (firstNumber && screenDisplay[0] === '0' && screenDisplay.length === 1) return;
+
+    if (screenDisplay.length === 1) {
+        screenDisplay[0] = '0';
+        screen.textContent = screenDisplay.join('');
+        return;
+    };
+
+    if (!firstNumber || !secondNumber) {
+        screenDisplay.pop();
+        screen.textContent = screenDisplay.join('');
+    };
+};
+
+const changePosNeg = () => {
+    screenDisplay = screen.textContent.split('');
+
+    if (screenDisplay[0] === '0' && screenDisplay.length === 1) return;
+
+    if (screenDisplay[0] === '-') {
+        screenDisplay.shift();
+    } else {
+        screenDisplay.unshift('-');
+    }
+    screen.textContent = screenDisplay.join('');
+
+    // We want to be able to also change results and operate on them, this allows it
+    if (secondNumber) {
+        firstNumber = screenDisplayToFloat();
+    }  
+};
 
 const equals = () => {
     screenBlink();
@@ -80,9 +127,30 @@ const equals = () => {
             }
             firstNumber = result;
             screen.textContent = `${result}`;
+            // We don't want to accept digits after an equals, if we don't know what to do
             acceptDigit = false;
         }               
     } 
+}
+
+const digitToScreen = (digit) => {
+    // This calculator doesn't want bigger numbers
+    if (screenDisplay.length > 11) return;
+    if (!acceptDigit) {
+        screenBlink();
+        return;
+    }
+
+    // Check for multiple zeroes and decimals, if we are waiting for a second number we need to add a zero to screen
+    if (screenDisplay[0] === '0' && digit === '0' && !firstNumber) return;
+    if (screenDisplay.includes(',') && digit === ',') return;
+
+    // If we already have zero and are not constructing a decimal number, start with an empty array
+    if (screenDisplay[0] === '0' && !screenDisplay.includes(',') && digit != ',') screenDisplay = [];
+
+    // Add digit to array and put new number on display
+    screenDisplay.push(digit);
+    screen.textContent = screenDisplay.join('');
 }
 
 const operatorInput = (operatorInput) => {
@@ -90,7 +158,7 @@ const operatorInput = (operatorInput) => {
     //This shit needs refactoring
     acceptDigit = true;
     //We want to be able to do opertions after equal, that is why we need to do this:
-    if (firstNumber && secondNumber) {
+    if ((firstNumber || firstNumber === 0) && secondNumber) {
         secondNumber = null;
         screenDisplay = ['0'];
         operator = operatorInput;
@@ -117,83 +185,15 @@ const operatorInput = (operatorInput) => {
         // To be able to input new numbers we set screendsipaly to zero
         screenDisplay = ['0'];
     }
-
 }
 
-const digitToScreen = (digit) => {
-    // This calculator doesn't want bigger numbers
-    if (screenDisplay.length > 11) return;
-    if (!acceptDigit) {
-        screenBlink();
-        return;
-    }
-
-    // Check for multiple zeroes and decimals, if we are waiting for a second number we need to add a zero to screen
-    if (screenDisplay[0] === '0' && digit === '0' && !firstNumber) return;
-    if (screenDisplay.includes(',') && digit === ',') return;
-
-    // If we already have zero and are not constructing a decimal number, start with an empty array
-    if (screenDisplay[0] === '0' && !screenDisplay.includes(',') && digit != ',') screenDisplay = [];
-
-    // Add digit to array and put new number on display
-    screenDisplay.push(digit);
-    screen.textContent = screenDisplay.join('');
-}
-
-const screenDisplayToFloat = () => parseFloat(screenDisplay.join('').replace(',', '.'));
-
-const clear = () => {
-    screenBlink();
-    screen.textContent = '0';
-    screenDisplay = ['0'];
-    firstNumber = null;
-    secondNumber = null;
-    operator = null;
-    acceptDigit = true;
-};
-
-const changePosNeg = () => {
-    screenDisplay = screen.textContent.split('');
-
-    if (screenDisplay[0] === '0' && screenDisplay.length === 1) return;
-
-    if (screenDisplay[0] === '-') {
-        screenDisplay.shift();
-    } else {
-        screenDisplay.unshift('-');
-    }
-    screen.textContent = screenDisplay.join('');
-
-    // We want to be able to also change results and operate on them, this allows it
-    if (secondNumber) {
-        firstNumber = screenDisplayToFloat();
-    }  
-};
-
-const deleteDigit = () => {
-    if (!acceptDigit) {
-        clear();
-        return;
-    }
-
-    if (firstNumber && screenDisplay[0] === '0' && screenDisplay.length === 1) return;
-
-    if (screenDisplay.length === 1) {
-        screenDisplay[0] = '0';
-        screen.textContent = screenDisplay.join('');
-        return;
-    };
-
-    if (!firstNumber || !secondNumber) {
-        screenDisplay.pop();
-        screen.textContent = screenDisplay.join('');
-    };
-};
-
+//Helper functions
 const screenBlink = () => {
     screen.classList.add('blink');
     setTimeout(() => screen.classList.remove('blink'), 80);
 };
+
+const screenDisplayToFloat = () => parseFloat(screenDisplay.join('').replace(',', '.'));
 
 const createInputObject = function(element) {
     let input = {
@@ -218,6 +218,7 @@ const handleKeyboardButton = function(e) {
     return button;
 }
 
+// Event listeners
 buttons.forEach(button => button.addEventListener('click', function() {
     const input = createInputObject(this);
     handleUserInput(input);
